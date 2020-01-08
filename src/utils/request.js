@@ -3,7 +3,7 @@ import axios from 'axios'
 import jsonBig from 'json-bigint'
 
 const request = axios.create({
-  baseUrl: ' http://ttapi.research.itcast.cn/'
+  baseURL: ' http://ttapi.research.itcast.cn/'
 })
 request.defaults.transformResponse = [function (data) {
   try {

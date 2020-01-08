@@ -7,27 +7,66 @@
       <van-field
       left-icon="contact"
       clearable
+      v-model="user.mobile"
       placeholder="请输入用户名"
       >
       <i class="iconfont icon-shouji"></i></van-field>
        <van-field
       clearable
       left-icon="circle"
+      v-model="user.code"
       placeholder="请输入密码"
       ><van-button  round slot="button" size="small" type="warning">发送验证码</van-button></van-field>
     </van-cell-group>
     <div class="login-wrap">
-      <van-button type="info">登录</van-button>
+      <van-button type="info" @click="onlogin">登录</van-button>
     </div>
 
   </div>
 </template>
 
 <script>
-
+import resquest from '@/utils/request'
 export default {
-  name: 'LoginPage'
+  name: 'LoginPage',
+  components: {},
+  data () {
+    return {
+      user: {
+        mobile: '', // 手机号
+        code: ''// 验证码
+      }
+    }
+  },
+  methods: {
+    async  onlogin () {
+      const user = this.user// 获取表单数据
+      // 表单验证
+      // 开启登录中 loading
+      this.$toast.loading({
+        duration: 0,
+        message: '加载中....',
+        forbidClick: true
+      })
+      // 手动停止提示
+
+      // 请求登录
+      try {
+        const res = await resquest({
+          method: 'POST',
+          url: '/app/v1_0/authorizations',
+          data: user
+        })
+        console.log(res)
+        this.$toast.success('登录成功')
+      } catch (err) {
+        console.log('登陆失败', err)
+        this.$toast.fail('登录失败')
+      }
+    }
+  }
 }
+
 </script>
 
 <style lang="less" scoped>
@@ -36,5 +75,8 @@ export default {
   .van-button {
     width: 100%;
   }
+}
+.van-cell {
+  align-items: center;
 }
 </style>
