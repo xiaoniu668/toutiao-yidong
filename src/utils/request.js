@@ -3,13 +3,13 @@ import axios from 'axios'
 import jsonBig from 'json-bigint'
 
 const request = axios.create({
-  baseUrl: 'http://ttapi.research.itcast.cn'
+  baseUrl: ' http://ttapi.research.itcast.cn/'
 })
-request.defaults.transformRequest = [function (data) {
+request.defaults.transformResponse = [function (data) {
   try {
     return jsonBig.parse(data)
-  } catch (err) {
-    console.log('转换失败', err)
+  } catch (error) {
+    console.log('转换失败', error)
 
     return {}
   }
