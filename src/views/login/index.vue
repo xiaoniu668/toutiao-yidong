@@ -26,7 +26,7 @@
 </template>
 
 <script>
-import resquest from '@/utils/request'
+import { login } from '@/api/user'
 export default {
   name: 'LoginPage',
   components: {},
@@ -52,11 +52,7 @@ export default {
 
       // 请求登录
       try {
-        const res = await resquest({
-          method: 'POST',
-          url: '/app/v1_0/authorizations',
-          data: user
-        })
+        const res = await login(user)
         console.log(res)
         this.$toast.success('登录成功')
       } catch (err) {
