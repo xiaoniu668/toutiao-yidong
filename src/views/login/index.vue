@@ -16,7 +16,19 @@
       left-icon="circle"
       v-model="user.code"
       placeholder="请输入密码"
-      ><van-button  round slot="button" size="small" type="warning">发送验证码</van-button></van-field>
+      ><van-button
+      v-if="!isCountDownShow"
+       round slot="button"
+       size="small"
+       type="warning"
+       >发送验证码</van-button>
+         <van-count-down
+         v-else
+         slot="button"
+         :time="1000*60"
+          format="ss s"
+         />
+        </van-field>
     </van-cell-group>
     <div class="login-wrap">
       <van-button type="info" @click="onlogin">登录</van-button>
@@ -35,7 +47,8 @@ export default {
       user: {
         mobile: '', // 手机号
         code: ''// 验证码
-      }
+      },
+      isCountDownShow: false // 是否显示倒计时
     }
   },
   methods: {
