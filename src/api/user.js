@@ -8,3 +8,10 @@ export const login = data => {
     data
   })
 }
+export const getSmsCode = mobile => {
+  // 具体的请求代码
+  return resquest({
+    method: 'GET',
+    url: `/app/v1_0/sms/codes/${mobile}`
+  })
+}

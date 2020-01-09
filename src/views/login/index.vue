@@ -10,7 +10,7 @@
       v-model="user.mobile"
       placeholder="请输入用户名"
       >
-      <i class="iconfont icon-shouji"></i></van-field>
+     </van-field>
        <van-field
       clearable
       left-icon="circle"
@@ -21,12 +21,14 @@
        round slot="button"
        size="small"
        type="warning"
+       @click="onSendSmsCode"
        >发送验证码</van-button>
          <van-count-down
          v-else
          slot="button"
          :time="1000*60"
           format="ss s"
+          @finish="isCountDownShow = false"
          />
         </van-field>
     </van-cell-group>
@@ -38,7 +40,7 @@
 </template>
 
 <script>
-import { login } from '@/api/user'
+import { login, getSmsCode } from '@/api/user'
 export default {
   name: 'LoginPage',
   components: {},
@@ -58,7 +60,7 @@ export default {
       // 开启登录中 loading
       this.$toast.loading({
         duration: 0,
-        message: '加载中....',
+        message: '登陆中....',
         forbidClick: true
       })
       // 手动停止提示
@@ -71,6 +73,21 @@ export default {
       } catch (err) {
         console.log('登陆失败', err)
         this.$toast.fail('登录失败')
+      }
+    },
+    async onSendSmsCode () {
+      try {
+        const { mobile } = this.user
+        // 1.验证手机号是否有效
+        // 2.请求发送短信验证码
+        const res = await getSmsCode(mobile)
+        console.log(res)
+
+        // 3.显示倒计时
+        this.isCountDownShow = true
+      } catch (err) {
+        console.log(err)
+        this.$toast('请勿频繁操作')
       }
     }
   }
