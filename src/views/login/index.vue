@@ -16,7 +16,7 @@
      </van-field>
       </ValidationProvider>
 
-      <ValidationProvider name="验证码" rules="required|mobile" immediate>
+      <ValidationProvider name="验证码" rules="required|code" immediate>
        <van-field
       clearable
       v-model="user.code"
@@ -50,7 +50,7 @@
 
 <script>
 import { login, getSmsCode } from '@/api/user'
-// import { validate } from 'vee-validate'
+import { validate } from 'vee-validate'
 export default {
   name: 'LoginPage',
   components: {},
@@ -90,8 +90,10 @@ export default {
 
       // 请求登录
       try {
-        const res = await login(user)
-        console.log(res)
+        const { data } = await login(user)
+        // console.log(res)
+        // 将登陆成功获取到的用户 token 相关数据存储到vuex容器
+        this.$store.commit('setUser', data.data)
         this.$toast.success('登录成功')
       } catch (err) {
         console.log('登陆失败', err)
@@ -102,6 +104,13 @@ export default {
       try {
         const { mobile } = this.user
         // 1.验证手机号是否有效
+        const validateResult = await validate(mobile, 'required|mobile', {
+          name: '手机号'
+        })
+        if (!validateResult.valid) {
+          this.$toast(validateResult.errors[0])
+          return
+        }
         // 2.请求发送短信验证码
         const res = await getSmsCode(mobile)
         console.log(res)
