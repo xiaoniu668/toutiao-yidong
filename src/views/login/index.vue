@@ -3,20 +3,27 @@
     <!-- 导航栏 -->
     <van-nav-bar title="登录"/>
     <!-- 输入框栏 -->
+      <!-- 登录表单 -->
+       <ValidationObserver ref="form">
     <van-cell-group>
+      <ValidationProvider name="手机号" rules="required|mobile" immediate>
       <van-field
-      left-icon="contact"
       clearable
       v-model="user.mobile"
       placeholder="请输入用户名"
       >
+      <i class="icon icon-shouji" slot="left-icon"></i>
      </van-field>
+      </ValidationProvider>
+
+      <ValidationProvider name="验证码" rules="required|mobile" immediate>
        <van-field
       clearable
-      left-icon="circle"
       v-model="user.code"
       placeholder="请输入密码"
-      ><van-button
+      >
+      <i class="icon icon-yanzhengma" slot="left-icon"></i>
+      <van-button
       v-if="!isCountDownShow"
        round slot="button"
        size="small"
@@ -31,7 +38,9 @@
           @finish="isCountDownShow = false"
          />
         </van-field>
-    </van-cell-group>
+        </ValidationProvider>
+     </van-cell-group>
+      </ValidationObserver>
     <div class="login-wrap">
       <van-button type="info" @click="onlogin">登录</van-button>
     </div>
@@ -41,6 +50,7 @@
 
 <script>
 import { login, getSmsCode } from '@/api/user'
+// import { validate } from 'vee-validate'
 export default {
   name: 'LoginPage',
   components: {},
@@ -57,6 +67,19 @@ export default {
     async  onlogin () {
       const user = this.user// 获取表单数据
       // 表单验证
+      const success = await this.$refs.form.validate()
+      if (!success) {
+        // console.log('表单验证失败')
+        const errors = this.$refs.form.errors
+        for (let key in errors) {
+          const item = errors[key]
+          if (item[0]) {
+            this.$toast(item[0])
+            return
+          }
+        }
+        return
+      }
       // 开启登录中 loading
       this.$toast.loading({
         duration: 0,
@@ -72,7 +95,7 @@ export default {
         this.$toast.success('登录成功')
       } catch (err) {
         console.log('登陆失败', err)
-        this.$toast.fail('登录失败')
+        this.$toast.fail('登录失败,手机号或验证码不正确')
       }
     },
     async onSendSmsCode () {
