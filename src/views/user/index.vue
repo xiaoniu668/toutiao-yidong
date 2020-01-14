@@ -1,7 +1,7 @@
 <template>
   <div class="user-container">
        <!-- 导航栏 -->
-    <van-nav-bar title="用户名称" left-arrow/>
+    <van-nav-bar :title="user.name" left-arrow/>
       <!-- 用户信息 -->
     <div class="user-info-container">
       <div class="row1">
@@ -9,24 +9,24 @@
           class="col1"
           fit="cover"
           round
-          src="https://img.yzcdn.cn/vant/cat.jpeg"
+          :src="user.photo"
         />
         <div class="col2">
           <div class="row1">
             <div class="item">
-              <div class="count">123</div>
+              <div class="count">{{user.art_count }}</div>
               <div class="text">发布</div>
             </div>
             <div class="item">
-              <div class="count">123</div>
+              <div class="count">{{user.follow_count}}</div>
               <div class="text">关注</div>
             </div>
             <div class="item">
-              <div class="count">123</div>
+              <div class="count">{{user.fans_count}}</div>
               <div class="text">粉丝</div>
             </div>
             <div class="item">
-              <div class="count">123</div>
+              <div class="count">{{user.like_count}}</div>
               <div class="text">获赞</div>
             </div>
           </div>
@@ -45,25 +45,81 @@
       <div class="intro-wrap">
         <div>
           <span>认证：</span>
-          <span>用户的认证信息</span>
+          <span>{{ user.certi }}</span>
         </div>
         <div>
           <span>简介：</span>
-          <span>用户的简介信息</span>
+          <span>{{ user.intro }}</span>
         </div>
       </div>
     </div>
     <!-- /用户信息 -->
 
      <!-- 文章列表 -->
+     <van-list
+       v-model="loading"
+       :finished="finished"
+       finished-text="没有更多了"
+       @load="onLoad"
+     >
+     <van-cell
+       v-for="(article, index) in list"
+       :key="index"
+       :title="article.title"
+     />
+     </van-list>
     <!-- /文章列表 -->
   </div>
 
 </template>
 
 <script>
+import { getUserbyid } from '@/api/user'
+import { getArticlesByUser } from '@/api/article'
 export default {
-  name: 'UserPage'
+  name: 'UserPage',
+  data () {
+    return {
+      user: {}, // 用户信息
+      list: [], // 列表数据
+      loading: false, // 控制上啦加载更多的 loading
+      finished: false, // 控制是否加载结束
+      page: 1 // 获取下一页页码
+    }
+  },
+  created () {
+    this.loadUser()
+  },
+  methods: {
+    async loadUser () {
+      try {
+        const { data } = await getUserbyid(this.$route.params.userId)
+        this.user = data.data
+      } catch (err) {
+        this.$toast('获取用户信息失败')
+      }
+    },
+    async onLoad () {
+      // 1.请求获取数据
+      const { data } = await getArticlesByUser(this.$route.params.userId, {
+        page: this.page, // 可选的，默认第一页
+        per_page: 10// 可选，默认每页十条
+      })
+      // 2.把数据添加到列表中
+      const { results } = data.data
+      this.list.push(...results)
+
+      // 3. 加载状态结束
+      this.loading = false
+
+      // 4.判段数据是否全部加载完成
+      if (results.length) {
+        this.page++ // 根性获取下一页数据的页码
+      } else {
+        this.finished = true // 没数据
+      }
+    }
+  }
 }
 </script>
 
